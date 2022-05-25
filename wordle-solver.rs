@@ -4,12 +4,23 @@ use std::io::{self, BufRead, BufReader};
 use std::collections::HashSet;
 use std::iter::FromIterator;
 
-const DICT_FILE: &str = "/usr/share/dict/american-english";
+const DEFAULT_DICTIONARY_FILE: &str = "/usr/share/dict/american-english";
 
 fn main() {
-    let correct_letters = env::args().nth(1).expect("No correct letters given");
-    let misplaced_letters = env::args().nth(2).unwrap_or(String::from(""));
-    let incorrect_letters = env::args().nth(3).unwrap_or(String::from(""));
+    let dictionary_file = env::var("DICTIONARY").ok()
+        .map(|value| String::from(value.trim()))
+        .filter(|value| !value.is_empty())
+        .unwrap_or(String::from(DEFAULT_DICTIONARY_FILE));
+    let correct_letters = env::args().nth(1)
+        .map(|value| String::from(value.trim()).to_lowercase())
+        .filter(|value| !value.is_empty())
+        .expect("No correct letters given");
+    let misplaced_letters = env::args().nth(2)
+        .map(|value| String::from(value.trim()).to_lowercase())
+        .unwrap_or(String::from(""));
+    let incorrect_letters = env::args().nth(3)
+        .map(|value| String::from(value.trim()).to_lowercase())
+        .unwrap_or(String::from(""));
 
     if misplaced_letters.chars().count() > correct_letters.chars().count() {
         panic!("Too many misplaced letters: {}", misplaced_letters);
@@ -19,7 +30,9 @@ fn main() {
     println!("Misplaced letters: {}", misplaced_letters);
     println!("Incorrect letters: {}", incorrect_letters);
 
+    let dictionary = open_dictionary(&dictionary_file);
     let matches = find_words(
+            dictionary,
             &correct_letters,
             &misplaced_letters,
             &HashSet::from_iter(incorrect_letters.chars()))
@@ -30,16 +43,28 @@ fn main() {
     }
 }
 
+fn open_dictionary(dictionary_file: &String) -> Box<dyn BufRead> {
+    if dictionary_file == "-" {
+        let stdin = io::stdin();
+        let reader = BufReader::new(stdin);
+        return Box::new(reader);
+    } else {
+        let file = File::open(dictionary_file)
+            .expect("Failed to open dictionary");
+        let reader = BufReader::new(file);
+        return Box::new(reader);
+    }
+}
+
 fn find_words(
+        dictionary: Box<dyn BufRead>,
         correct_letters: &String,
         misplaced_letters: &String,
         incorrect_letters: &HashSet<char>
 ) -> io::Result<Vec<String>> {
-    let file = File::open(DICT_FILE)?;
-    let reader = BufReader::new(file);
     let mut matches: Vec<String> = Vec::new();
 
-    for line in reader.lines() {
+    for line in dictionary.lines() {
         let safe_line = line?.clone();
         if safe_line.chars().count() == correct_letters.chars().count()
                 && !has_invalid_chars(&safe_line)

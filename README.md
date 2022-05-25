@@ -46,5 +46,8 @@ misplaced letters:
 
 ## Dictionary
 
-Currently, the dictionary is hard-coded to the location `/usr/share/dict/american-english`. This should work for most
-players by default. A future enhancement may make this value configurable.
+The default dictionary is located at `/usr/share/dict/american-english`. To use a different dictionary, set the
+`DICTIONARY` environment variable to a different file path. If the given file path is empty or only whitespace, the
+default dictionary will be used. If the given file path is `-`, the dictionary will be read from standard input.
+
+This application will likely not behave as expected for characters outside of standard English a-z.
