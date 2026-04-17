@@ -9,4 +9,3 @@ edition = "2021"
 
 [[bin]]
 name = "wordle-solver"
-path = "wordle-solver.rs"
