@@ -34,9 +34,11 @@ impl Wordle {
     }
 
     fn normalize(value: String, ok_chars: &str) -> String {
-        let mut value: String = String::from(value.trim()).to_lowercase();
-        value.retain(|c| ('a'..='z').contains(&c) || ok_chars.contains(c));
-        value
+        value.chars()
+            .map(char::to_lowercase)
+            .flatten()
+            .filter(|c| ('a'..='z').contains(c) || ok_chars.contains(*c))
+            .collect()
     }
 
     pub fn matches(&self, word: &String) -> bool {
