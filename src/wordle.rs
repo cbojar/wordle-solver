@@ -1,16 +1,17 @@
 use std::collections::HashSet;
+use std::fmt::{Display, Formatter};
 
 pub struct Wordle {
     correct: String,
     misplaced: String,
-    incorrect: String
+    incorrect: HashSet<char>
 }
 
 impl Wordle {
     pub fn create(correct: Option<String>, misplaced: Option<String>, incorrect: Option<String>) -> Result<Wordle, String> {
         let correct: String = Self::process_correct(correct)?;
         let misplaced: String = Self::process(misplaced);
-        let incorrect: String = Self::process(incorrect);
+        let incorrect: HashSet<char> = HashSet::from_iter(Self::process(incorrect).chars());
 
         if misplaced.len() > correct.len() {
             Err(format!("Too many misplaced letters: {}", misplaced))
@@ -38,23 +39,37 @@ impl Wordle {
         value
     }
 
-    pub fn len(&self) -> usize {
-        self.correct.len()
+    pub fn matches(&self, word: &String) -> bool {
+        self.correct.len() == word.len() &&
+            self.matches_correct(word) &&
+            self.matches_misplaced(word) &&
+            !self.matches_incorrect(word)
     }
 
-    pub fn correct(&self) -> &str {
-        self.correct.as_str()
+    fn matches_correct(&self, word: &String) -> bool {
+        word.chars()
+            .zip(self.correct.chars())
+            .filter(|(_char, correct)| correct != &'_')
+            .all(|(char, correct)| char == correct)
     }
 
-    pub fn misplaced(&self) -> &str {
-        self.misplaced.as_str()
+    fn matches_misplaced(&self, word: &String) -> bool {
+        self.misplaced.chars()
+            .all(|misplaced| word.chars().any(|char| char == misplaced))
     }
 
-    pub fn incorrect(&self) -> &str {
-        self.incorrect.as_str()
+    fn matches_incorrect(&self, word: &String) -> bool {
+        word.chars().any(|char| self.incorrect.contains(&char))
     }
+}
 
-    pub fn incorrect_set(&self) -> HashSet<char> {
-        HashSet::from_iter(self.incorrect.chars())
+impl Display for Wordle {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+        let incorrect: String = self.incorrect.iter().collect();
+
+        formatter.write_str(
+            format!("Correct letters: {}\nMisplaced Letters: {}\nIncorrect Letters: {}",
+                    self.correct, self.misplaced, incorrect)
+                .as_str())
     }
 }
