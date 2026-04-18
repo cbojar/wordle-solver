@@ -30,7 +30,7 @@ impl Wordle {
         value
             .map(|v| Self::normalize(v, ""))
             .filter(|v| !v.is_empty())
-            .unwrap_or(String::from(""))
+            .unwrap_or(String::new())
     }
 
     fn normalize(value: String, ok_chars: &str) -> String {
@@ -51,7 +51,7 @@ impl Wordle {
     fn matches_correct(&self, word: &String) -> bool {
         word.chars()
             .zip(self.correct.chars())
-            .filter(|(_char, correct)| correct != &'_')
+            .filter(|(_, correct)| *correct != '_')
             .all(|(char, correct)| char == correct)
     }
 

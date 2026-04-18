@@ -42,7 +42,7 @@ fn open_dictionary(dictionary_file: &String) -> Box<dyn BufRead> {
 
 fn find_words(dictionary: Box<dyn BufRead>, wordle: &Wordle) -> Vec<String> {
     dictionary.lines()
-        .map(|line| line.unwrap_or(String::from("")))
+        .map(|line| line.unwrap_or(String::new()))
         .filter(|line| !has_invalid_chars(line))
         .filter(|line| wordle.matches(line))
         .collect()
