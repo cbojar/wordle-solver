@@ -2,7 +2,7 @@ mod wordle;
 
 use std::env;
 use std::fs::File;
-use std::io::{self, BufRead, BufReader};
+use std::io::{self, BufRead, BufReader, Error};
 use crate::wordle::Wordle;
 
 const DEFAULT_DICTIONARY_FILE: &str = "/usr/share/dict/american-english";
@@ -19,7 +19,7 @@ fn main() {
 
     println!("{}", wordle);
 
-    let dictionary = open_dictionary(&dictionary_file);
+    let dictionary = open_dictionary(dictionary_file).unwrap();
     let matches = find_words(dictionary, &wordle);
 
     for word in matches {
@@ -27,16 +27,12 @@ fn main() {
     }
 }
 
-fn open_dictionary(dictionary_file: &String) -> Box<dyn BufRead> {
+fn open_dictionary(dictionary_file: String) -> Result<Box<dyn BufRead>, Error> {
     if dictionary_file == "-" {
-        let stdin = io::stdin();
-        let reader = BufReader::new(stdin);
-        return Box::new(reader);
+        Ok(Box::new(io::stdin().lock()))
     } else {
-        let file = File::open(dictionary_file)
-            .expect("Failed to open dictionary");
-        let reader = BufReader::new(file);
-        return Box::new(reader);
+        let file: File = File::open(dictionary_file)?;
+        Ok(Box::new(BufReader::new(file)))
     }
 }
 
