@@ -35,8 +35,7 @@ impl Wordle {
 
     fn normalize(value: String, ok_chars: &str) -> String {
         value.chars()
-            .map(char::to_lowercase)
-            .flatten()
+            .flat_map(char::to_lowercase)
             .filter(|c| ('a'..='z').contains(c) || ok_chars.contains(*c))
             .collect()
     }

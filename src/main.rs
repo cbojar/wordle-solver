@@ -9,13 +9,14 @@ const DEFAULT_DICTIONARY_FILE: &str = "/usr/share/dict/american-english";
 
 fn main() {
     let dictionary_file = env::var("DICTIONARY").ok()
-        .map(|value| String::from(value.trim()))
-        .filter(|value| !value.is_empty())
+        .filter(|value| !value.trim().is_empty())
         .unwrap_or(String::from(DEFAULT_DICTIONARY_FILE));
 
     let wordle: Wordle = Wordle::create(
-        env::args().nth(1), env::args().nth(2), env::args().nth(3))
-        .unwrap();
+        env::args().nth(1),
+        env::args().nth(2),
+        env::args().nth(3)
+    ).unwrap();
 
     println!("{}", wordle);
 
