@@ -1,8 +1,8 @@
 mod wordle;
+mod dictionary;
 
 use std::env;
-use std::fs::File;
-use std::io::{self, BufRead, BufReader, Error};
+use crate::dictionary::Dictionary;
 use crate::wordle::Wordle;
 
 const DEFAULT_DICTIONARY_FILE: &str = "/usr/share/dict/american-english";
@@ -20,31 +20,9 @@ fn main() {
 
     println!("{}", wordle);
 
-    let dictionary = open_dictionary(dictionary_file).unwrap();
-    let matches = find_words(dictionary, &wordle);
+    let dictionary: Dictionary = Dictionary::open(&dictionary_file).unwrap();
 
-    for word in matches {
+    for word in dictionary.words().filter(|word| wordle.matches(word)) {
         println!("{}", word);
     }
-}
-
-fn open_dictionary(dictionary_file: String) -> Result<Box<dyn BufRead>, Error> {
-    if dictionary_file == "-" {
-        Ok(Box::new(io::stdin().lock()))
-    } else {
-        let file: File = File::open(dictionary_file)?;
-        Ok(Box::new(BufReader::new(file)))
-    }
-}
-
-fn find_words(dictionary: Box<dyn BufRead>, wordle: &Wordle) -> Vec<String> {
-    dictionary.lines()
-        .map(|line| line.unwrap_or(String::new()))
-        .filter(|line| !has_invalid_chars(line))
-        .filter(|line| wordle.matches(line))
-        .collect()
-}
-
-fn has_invalid_chars(word: &String) -> bool {
-    word.chars().any(|char| char < 'a' || char > 'z')
 }
