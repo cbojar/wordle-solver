@@ -1,6 +1,6 @@
 # wordle-solver
 
-A simple worldle-solver written in Rust.
+A simple wordle-solver written in Rust.
 
 ## How to build
 
