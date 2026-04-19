@@ -1,20 +1,24 @@
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 use std::fmt::{Display, Formatter};
 
 pub struct Wordle {
     correct: String,
     misplaced: String,
-    incorrect: HashSet<char>
+    incorrect: BTreeSet<char>
 }
 
 impl Wordle {
     pub fn create(correct: Option<String>, misplaced: Option<String>, incorrect: Option<String>) -> Result<Wordle, String> {
         let correct: String = Self::process_correct(correct)?;
         let misplaced: String = Self::process(misplaced);
-        let incorrect: HashSet<char> = HashSet::from_iter(Self::process(incorrect).chars());
+        let incorrect: BTreeSet<char> = BTreeSet::from_iter(Self::process(incorrect).chars());
 
         if misplaced.len() > correct.len() {
             Err(format!("Too many misplaced letters: {}", misplaced))
+        } else if correct.chars().any(|c| incorrect.contains(&c)) {
+            Err(String::from("Correct letter also marked incorrect"))
+        } else if misplaced.chars().any(|c| incorrect.contains(&c)) {
+            Err(String::from("Misplaced letter also marked incorrect"))
         } else {
             Ok(Wordle { correct, misplaced, incorrect })
         }
