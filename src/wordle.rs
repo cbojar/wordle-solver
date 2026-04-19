@@ -70,11 +70,8 @@ impl Wordle {
 
 impl Display for Wordle {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
-        let incorrect: String = self.incorrect.iter().collect();
-
-        formatter.write_str(
-            format!("Correct letters: {}\nMisplaced Letters: {}\nIncorrect Letters: {}",
-                    self.correct, self.misplaced, incorrect)
-                .as_str())
+        write!(formatter,
+               "Correct letters: {}\nMisplaced Letters: {}\nIncorrect Letters: {}",
+               self.correct, self.misplaced, self.incorrect.iter().collect::<String>())
     }
 }
