@@ -20,9 +20,11 @@ fn main() {
 
     println!("{}", wordle);
 
-    let dictionary: Dictionary = Dictionary::open(&dictionary_file).unwrap();
+    let matches = Dictionary::new(&dictionary_file)
+        .select(|word| wordle.matches(word))
+        .unwrap();
 
-    for word in dictionary.words().filter(|word| wordle.matches(word)) {
+    for word in matches {
         println!("{}", word);
     }
 }
