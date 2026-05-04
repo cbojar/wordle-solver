@@ -8,8 +8,8 @@ pub struct Wordle {
 }
 
 impl Wordle {
-    pub fn create(correct: Option<String>, misplaced: Option<String>, incorrect: Option<String>) -> Result<Wordle, String> {
-        let correct: String = Self::process_correct(correct)?;
+    pub fn create(correct: String, misplaced: Option<String>, incorrect: Option<String>) -> Result<Wordle, String> {
+        let correct: String = Self::process_correct(correct);
         let misplaced: String = Self::process(misplaced);
         let incorrect: BTreeSet<char> = BTreeSet::from_iter(Self::process(incorrect).chars());
 
@@ -24,23 +24,25 @@ impl Wordle {
         }
     }
 
-    fn process_correct(value: Option<String>) -> Result<String, String> {
-        value
-            .map(|v| Self::normalize(v,"_"))
-            .ok_or_else(|| String::from("No correct letters given"))
+    fn process_correct(value: String) -> String {
+        value.chars()
+            .flat_map(char::to_lowercase)
+            .map(|c| if c == '.' { '_' } else { c })
+            .filter(|c| ('a'..='z').contains(c) || *c == '_')
+            .collect()
     }
 
     fn process(value: Option<String>) -> String {
         value
-            .map(|v| Self::normalize(v, ""))
+            .map(|v| Self::normalize(v))
             .filter(|v| !v.is_empty())
             .unwrap_or(String::new())
     }
 
-    fn normalize(value: String, ok_chars: &str) -> String {
+    fn normalize(value: String) -> String {
         value.chars()
             .flat_map(char::to_lowercase)
-            .filter(|c| ('a'..='z').contains(c) || ok_chars.contains(*c))
+            .filter(|c| ('a'..='z').contains(c))
             .collect()
     }
 
