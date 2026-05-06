@@ -6,8 +6,8 @@ pub struct Dictionary {
 }
 
 impl Dictionary {
-    pub fn new(filename: &String) -> Dictionary {
-        Dictionary { filename: filename.to_owned() }
+    pub fn new(filename: String) -> Dictionary {
+        Dictionary { filename }
     }
 
     pub fn select<P>(&self, predicate: P) -> Result<Vec<String>, Error> where P: Fn(&String) -> bool {
