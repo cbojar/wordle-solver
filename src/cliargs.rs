@@ -17,22 +17,22 @@ impl CliArgs {
         self.dictionary_file.as_ref()
             .map(|f| f.to_owned())
             .or_else(|| env::var("DICTIONARY").ok())
-            .unwrap_or(String::from(DEFAULT_DICTIONARY_FILE))
+            .unwrap_or_else(|| String::from(DEFAULT_DICTIONARY_FILE))
     }
 
-    pub fn correct(&self) -> String {
-        self.correct.to_owned()
+    pub fn correct(&self) -> &str {
+        self.correct.as_str()
     }
 
-    pub fn misplaced(&self) -> String {
+    pub fn misplaced(&self) -> &str {
         self.misplaced.as_ref()
-            .map(|m| m.to_owned())
-            .unwrap_or_else(String::new)
+            .map(|m| &m[..])
+            .unwrap_or("")
     }
 
-    pub fn incorrect(&self) -> String {
+    pub fn incorrect(&self) -> &str {
         self.incorrect.as_ref()
-            .map(|i| i.to_owned())
-            .unwrap_or_else(String::new)
+            .map(|i| &i[..])
+            .unwrap_or("")
     }
 }

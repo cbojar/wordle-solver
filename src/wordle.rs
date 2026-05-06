@@ -8,7 +8,7 @@ pub struct Wordle {
 }
 
 impl Wordle {
-    pub fn create(correct: String, misplaced: String, incorrect: String) -> Result<Wordle, String> {
+    pub fn create(correct: &str, misplaced: &str, incorrect: &str) -> Result<Wordle, String> {
         let correct: String = Self::process_correct(correct);
         let misplaced: String = Self::process(misplaced);
         let incorrect: BTreeSet<char> = BTreeSet::from_iter(Self::process(incorrect).chars());
@@ -24,7 +24,7 @@ impl Wordle {
         }
     }
 
-    fn process_correct(value: String) -> String {
+    fn process_correct(value: &str) -> String {
         value.chars()
             .flat_map(char::to_lowercase)
             .map(|c| if c == '.' { '_' } else { c })
@@ -32,7 +32,7 @@ impl Wordle {
             .collect()
     }
 
-    fn process(value: String) -> String {
+    fn process(value: &str) -> String {
         value.chars()
             .flat_map(char::to_lowercase)
             .filter(|c| ('a'..='z').contains(c))
